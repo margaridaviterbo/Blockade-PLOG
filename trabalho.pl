@@ -1,4 +1,4 @@
-:- use_module(library(random3)).
+:- use_module(library(random)).
 :- use_module(library(lists)).
 menu(X):-
 write('Choose type of game you wish to play:'), nl,
@@ -127,6 +127,19 @@ retract(calcBoard(_)),asserta(calcBoard(NewCalcBoard)),floodFill(Board,X,Y1),fal
 
 );true.
 
+%smartWallCPU(Board,[Xp,Yp],[Xw,Yw]):-
+%Xwall is Xp-1,Ywall is Yp-1,checkColisionHorizontal(Board,[Xwall,Ywall]),P1 is 2*Xwall,replaceMatrix(Board,P1,Ywall,1,w,StackBoard),P2 is Ywall+1,replaceMatrix(StackBoard,P1,P2,1,w,NewBoard),checkPawnsPath(NewBoard),Xw is Xwall,Yw is Ywall;
+%Xwall is Xp-1,checkColisionHorizontal(Board,[Xwall,Yp]),P1 is 2*Xp,replaceMatrix(Board,P1,Ywall,1,w,StackBoard),P2 is Yp+1,replaceMatrix(StackBoard,P1,P2,1,w,NewBoard),checkPawnsPath(NewBoard),Xw is Xwall,Yw is Yp;
+%Xwall is Xp-1,checkColisionVertical(Board,[Xwall,Yp]),P1 is 2*Xwall-1,P2 is 2*Yp,replaceMatrix(Board,P1,P2,1,q,StackBoard),P3 is P1+2,replaceMatrix(StackBoard,P3,P2,1,1,NewBoard),checkPawnsPath(NewBoard),Xw is Xwall,Yw is Yp;
+%Xwall is Xp,Ywall is Yp,checkColisionVertical(Board,[Xwall,Ywall]),P1 is 2*Xp-1,P2 is 2*Yp,replaceMatrix(Board,P1,P2,1,q,StackBoard),P3 is P1+2,replaceMatrix(StackBoard,P3,P2,1,1,NewBoard),checkPawnsPath(NewBoard),Xw is Xwall,Yw is Ywall;
+%Xwall is Xp-1,Ywall is Yp-1,checkColisionVertical(Board,[Xwall,Ywall]),P1 is 2*Xwall-1,P2 is 2*Yp,replaceMatrix(Board,P1,P2,1,q,StackBoard),P3 is P1+2,replaceMatrix(StackBoard,P3,P2,1,1,NewBoard),checkPawnsPath(NewBoard),Xw is Xwall,Yw is Yp;
+%Xwall is Xp,Ywall is Yp,checkColisionVertical(Board,[Xwall,Ywall]),P1 is 2*Xp-1,P2 is 2*Yp,replaceMatrix(Board,P1,P2,1,q,StackBoard),P3 is P1+2,replaceMatrix(StackBoard,P3,P2,1,1,NewBoard),checkPawnsPath(NewBoard),Xw is Xwall,Yw is Ywall;
+
+
+
+
+
+
 smartMovementCPU(Board,Turn,NewBoard):-(Turn==1,pawn1([Pawn1V,Pawn1H]),pawn2([Pawn2V,Pawn2H]);Turn ==2,pawn3([Pawn1V,Pawn1H]),pawn4([Pawn2V,Pawn2H])),
 calcboard(CalcBoard),replaceMatrix(CalcBoard,Pawn1V,Pawn1H,1,0,NewCalcBoard),Pawn1Vff is 2*Pawn1V-1,Pawn1Hff is 2* Pawn1H-1,asserta(calcBoard(NewCalcBoard)),floodFill(Board,Pawn1Vff,Pawn1Hff),
 calcBoard(CalcPawn1),write(CalcPawn1),nl,retract(calcBoard(_)),
@@ -157,7 +170,7 @@ display_board([L1|L2]):-display_line(L1),nl,display_board(L2).
 display_line([]).
 display_line([L1|L2]):-write(L1),display_line(L2).
 
-start(?):-menu(X),(X\=1,chooseDificulty(Y);true),asserta(endGame(0)),board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(0,0),J2=player(0,0),play(L1,J1,J2,1,0,X,Y).
+start(?):-menu(X),(X\=1,chooseDificulty(Y);true),asserta(endGame(0)),board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(8,8),J2=player(8,8),play(L1,J1,J2,1,0,X,Y).
 
 
 play(_,_,_,_,1,1,_):-retract(pawn2(_)),retract(pawn1(_)),retract(pawn3(_)),retract(pawn4(_)),start(?).
@@ -196,25 +209,30 @@ Char=='OO',NewPosY is P2-2,NewX is 2*P1-1,NewY is 2*NewPosY-1,getElementFromMatr
 Char=='O',NewPosY is P2-1,NewX is 2*P1-1,NewY is 2*NewPosY-1,getElementFromMatrix(Board,NewX,NewY,1,1,Value),(Value\=p,Value\=j,replaceMatrix(Board,NewX,NewY,1,PlayerChar,StackBoard);StackBoard=Board),changePawn(P1,NewPosY,L1);
 Char=='EE',NewPosY is P2+2,NewX is 2*P1-1,NewY is 2*NewPosY-1,getElementFromMatrix(Board,NewX,NewY,1,1,Value),(Value\=p,Value\=j,replaceMatrix(Board,NewX,NewY,1,PlayerChar,StackBoard);StackBoard=Board),changePawn(P1,NewPosY,L1);
 Char=='E',NewPosY is P2+1,NewX is 2*P1-1,NewY is 2*NewPosY-1,getElementFromMatrix(Board,NewX,NewY,1,1,Value),(Value\=p,Value\=j,replaceMatrix(Board,NewX,NewY,1,PlayerChar,StackBoard);StackBoard=Board),changePawn(P1,NewPosY,L1);
-Char=='SE';
-Char=='NE';
-Char=='NO';
-Char=='SO'),(LastX is 2*P1-1, LastY is 2*P2-1,getElementFromMatrix(Board,LastX,LastY,1,1,LastValue) ,LastValue\=p,LastValue\=j, replaceMatrix(StackBoard,LastX,LastY,1,c,NewBoard);NewBoard=StackBoard).
+Char=='SE',NewPosX is P1+1,NewPosY is P2+1,NewX is 2*NewPosX-1,NewY is 2*NewPosY-1,getElementFromMatrix(Board,NewX,NewY,1,1,Value),(Value\=p,Value\=j,replaceMatrix(Board,NewX,NewY,1,PlayerChar,StackBoard);StackBoard=Board),changePawn(NewPosX,NewPosY,L1);
+Char=='NE',NewPosX is P1-1,NewPosY is P2+1,NewX is 2*NewPosX-1,NewY is 2*NewPosY-1,getElementFromMatrix(Board,NewX,NewY,1,1,Value),(Value\=p,Value\=j,replaceMatrix(Board,NewX,NewY,1,PlayerChar,StackBoard);StackBoard=Board),changePawn(NewPosX,NewPosY,L1);
+Char=='NO',NewPosX is P1-1,NewPosY is P2-1,NewX is 2*NewPosX-1,NewY is 2*NewPosY-1,getElementFromMatrix(Board,NewX,NewY,1,1,Value),(Value\=p,Value\=j,replaceMatrix(Board,NewX,NewY,1,PlayerChar,StackBoard);StackBoard=Board),changePawn(NewPosX,NewPosY,L1);
+Char=='SO',NewPosX is P1+1,NewPosY is P2-1,NewX is 2*NewPosX-1,NewY is 2*NewPosY-1,getElementFromMatrix(Board,NewX,NewY,1,1,Value),(Value\=p,Value\=j,replaceMatrix(Board,NewX,NewY,1,PlayerChar,StackBoard);StackBoard=Board),changePawn(NewPosX,NewPosY,L1)),
+(LastX is 2*P1-1, LastY is 2*P2-1,getElementFromMatrix(Board,LastX,LastY,1,1,LastValue) ,LastValue\=p,LastValue\=j, replaceMatrix(StackBoard,LastX,LastY,1,c,NewBoard);NewBoard=StackBoard).
 
 checkPawnColision(Board,NewX,NewY,X,Y):-getElementFromMatrix(Board,NewX,NewY,1,1,Value),Value\=r,Value\=e.
 
 canPassWalls(Board,[P1,P2],Char):-Char=='NN',P1-2>0,P3 is 2*P1-2,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w,P4 is 2*P1-4,getElementFromMatrix(Board,P4,P2,1,1,Value2),Value2\=w;
 Char=='N',P1-1>0,P3 is 2*P1-2,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w;
-Char=='SS',P1+2>0,P3 is 2*P1,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w,P4 is 2*P1+2,getElementFromMatrix(Board,P4,P2,1,1,Value2),Value2\=w;
-Char=='S',P1+1>0,P3 is 2*P1,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w;
+Char=='SS',P1+2<15,P3 is 2*P1,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w,P4 is 2*P1+2,getElementFromMatrix(Board,P4,P2,1,1,Value2),Value2\=w;
+Char=='S',P1+1<15,P3 is 2*P1,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w;
 Char=='OO',P2-2>0,P3 is 2*P1-1,P4 is 2*P2-2,getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q,P5 is 2*P2-4,getElementFromMatrix(Board,P3,P5,1,1,Value2),Value2\=q;
 Char=='O',P2-1>0,P3 is 2*P1-1, P4 is 2*P2,getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q;
-Char=='EE',P2+2>0,P3 is 2*P1-1,P4 is 2*P2,getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q,P5 is 2*P2+2,getElementFromMatrix(Board,P3,P5,1,1,Value2),Value2\=q;
-Char=='E',P2+1>0,P3 is 2*P1-1, P4 is 2*P2,getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q;
-Char=='SE';
-Char=='NE';
-Char=='NO';
-Char=='SO'.
+Char=='EE',P2+2<12,P3 is 2*P1-1,P4 is 2*P2,getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q,P5 is 2*P2-2,getElementFromMatrix(Board,P3,P5,1,1,Value2),Value2\=q;
+Char=='E',P2+1<12,P3 is 2*P1-1, P4 is 2*P2,getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q;
+Char=='SE',P2+1<12,P1+1<15,(P3 is 2*P1-1,P4 is 2*P2,getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q,P5 is 2*P1 ,P6 is P2 +1,getElementFromMatrix(Board,P5,P6,1,1,Value2),Value2\=w;
+                            P3 is 2*P1,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w,P4 is 2*P1+1,P5 is 2*P2,getElementFromMatrix(Board,P4,P5,1,1,Value2),Value2\=w) ;
+Char=='NE',P1-1>0,P2+1<12,(P3 is 2*P1-1,P4 is 2*P2,getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q,P5 is 2*P1-2 ,P6 is P2 +1,getElementFromMatrix(Board,P5,P6,1,1,Value2),Value2\=w;
+                           P3 is 2*P1-2,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w,P4 is 2*P1-3,P5 is 2*P2,getElementFromMatrix(Board,P4,P5,1,1,Value2),Value2\=w);
+Char=='NO',P2-1>0,P1-1>0,(P3 is 2*P1-1,P4 is 2*(P2-1),getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q,P5 is 2*(P1-1) ,P6 is P2 -1,getElementFromMatrix(Board,P5,P6,1,1,Value2),Value2\=w;
+                           P3 is 2*P1-2,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w,P4 is 2*P1-3,P5 is 2*(P2-1),getElementFromMatrix(Board,P4,P5,1,1,Value2),Value2\=w);
+Char=='SO',P2-1>0,P1+1<15,(P3 is 2*P1-1,P4 is 2*(P2-1),getElementFromMatrix(Board,P3,P4,1,1,Value1),Value1\=q,P5 is 2*P1 ,P6 is P2 -1,getElementFromMatrix(Board,P5,P6,1,1,Value2),Value2\=w;
+                           P3 is 2*P1,getElementFromMatrix(Board,P3,P2,1,1,Value1),Value1\=w,P4 is 2*P1+1,P5 is 2*(P2-1),getElementFromMatrix(Board,P4,P5,1,1,Value2),Value2\=w).
 
 changePawn(X,Y,[X,Y]).
 
@@ -241,10 +259,10 @@ canPassWalls(Board,[P1,P2],'OO'),NewPosY is P2-2,NewX is 2*P1-1,NewY is 2*NewPos
 canPassWalls(Board,[P1,P2],'O'),NewPosY is P2-1,NewX is 2*P1-1,NewY is 2*NewPosY-1,checkPawnColision(Board,NewX,NewY,1,1),(\+availableList(List),asserta(availableList(['O']));availableList(List),\+ member('O',List),retract(availableList(_)),append(['O'],List,NewList),asserta(availableList(NewList))),fail;
 canPassWalls(Board,[P1,P2],'EE'),NewPosY is P2+2,NewX is 2*P1-1,NewY is 2*NewPosY-1,checkPawnColision(Board,NewX,NewY,1,1),(\+availableList(List),asserta(availableList(['EE']));availableList(List),\+ member('EE',List),retract(availableList(_)),append(['EE'],List,NewList),asserta(availableList(NewList))),fail;
 canPassWalls(Board,[P1,P2],'E'),NewPosY is P2+1,NewX is 2*P1-1,NewY is 2*NewPosY-1,checkPawnColision(Board,NewX,NewY,1,1),(\+availableList(List),asserta(availableList(['E']));availableList(List),\+ member('E',List),retract(availableList(_)),append(['E'],List,NewList),asserta(availableList(NewList))),fail;
-canPassWalls(Board,[P1,P2],'NO'),fail;
-canPassWalls(Board,[P1,P2],'NE'),fail;
-canPassWalls(Board,[P1,P2],'SE'),fail;
-canPassWalls(Board,[P1,P2],'SO'),fail;
+canPassWalls(Board,[P1,P2],'NO'),NewPosX is P1-1,NewX is 2*NewPosX-1,NewPosY is P2-1,NewY is 2*NewPosY-1,checkPawnColision(Board,NewX,NewY,1,1),(\+availableList(List),asserta(availableList(['NO']));availableList(List),\+ member('NO',List),retract(availableList(_)),append(['NO'],List,NewList),asserta(availableList(NewList))),fail;
+canPassWalls(Board,[P1,P2],'NE'),NewPosX is P1-1,NewX is 2*NewPosX-1,NewPosY is P2+1,NewY is 2*NewPosY-1,checkPawnColision(Board,NewX,NewY,1,1),(\+availableList(List),asserta(availableList(['NE']));availableList(List),\+ member('NE',List),retract(availableList(_)),append(['NE'],List,NewList),asserta(availableList(NewList))),fail;
+canPassWalls(Board,[P1,P2],'SE'),NewPosX is P1+1,NewX is 2*NewPosX-1,NewPosY is P2+1,NewY is 2*NewPosY-1,checkPawnColision(Board,NewX,NewY,1,1),(\+availableList(List),asserta(availableList(['SE']));availableList(List),\+ member('SE',List),retract(availableList(_)),append(['SE'],List,NewList),asserta(availableList(NewList))),fail;
+canPassWalls(Board,[P1,P2],'SO'),NewPosX is P1+1,NewX is 2*NewPosX-1,NewPosY is P2-1,NewY is 2*NewPosY-1,checkPawnColision(Board,NewX,NewY,1,1),(\+availableList(List),asserta(availableList(['SO']));availableList(List),\+ member('SO',List),retract(availableList(_)),append(['SO'],List,NewList),asserta(availableList(NewList))),fail;
 true.
 
 choosePositionToMove(Place):-write('In what position would you like to place the pawn? U can choose from "N","NN","NO","NE","EE","SE","S","SS","SO","O" or "OO"'),nl,
