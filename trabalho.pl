@@ -66,7 +66,7 @@ calcboard([
   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
   ]).
 
-tentativa([[c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c],
+board([[c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c],
 	[b,b,b,b,b,b,b,b,b,b,b],
 	[c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c],
 	[b,b,b,b,b,b,b,b,b,b,b],
@@ -157,7 +157,7 @@ display_board([L1|L2]):-display_line(L1),nl,display_board(L2).
 display_line([]).
 display_line([L1|L2]):-write(L1),display_line(L2).
 
-start(?):-menu(X),(X\=1,chooseDificulty(Y);true),asserta(endGame(0)),tentativa(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(0,0),J2=player(0,0),play(L1,J1,J2,1,0,X,Y).
+start(?):-menu(X),(X\=1,chooseDificulty(Y);true),asserta(endGame(0)),board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(0,0),J2=player(0,0),play(L1,J1,J2,1,0,X,Y).
 
 
 play(_,_,_,_,1,1,_):-retract(pawn2(_)),retract(pawn1(_)),retract(pawn3(_)),retract(pawn4(_)),start(?).
@@ -300,6 +300,6 @@ checkColisionHorizontalAux(Board,[P1,P2],Return):-getElementFromMatrix(Board,P1,
 checkColisionHorizontalAux(Board,[P1,P2],1):-getElementFromMatrix(Board,P1,P2,1,1,Value),Value ==q.
 checkColisionHorizontalAux(_,[_,_],0).
 
-%?-tentativa(Board),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),smartMovementCPU(Board,2,NewBoard),display(NewBoard,1,1),smartMovementCPU(NewBoard,1,OIBoard),display(OIBoard,1,1).
-%?- calcboard(CalcBoard),replaceMatrix(CalcBoard,4,4,1,0,NewCalcBoard),asserta(calcBoard(NewCalcBoard)),tentativa(Board),floodFill(Board,7,7,[C1,C2]),calcBoard(Final),write(Final).
+%?-board(Board),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),smartMovementCPU(Board,2,NewBoard),display(NewBoard,1,1),smartMovementCPU(NewBoard,1,OIBoard),display(OIBoard,1,1).
+%?- calcboard(CalcBoard),replaceMatrix(CalcBoard,4,4,1,0,NewCalcBoard),asserta(calcBoard(NewCalcBoard)),board(Board),floodFill(Board,7,7,[C1,C2]),calcBoard(Final),write(Final).
 ?-start(?).
