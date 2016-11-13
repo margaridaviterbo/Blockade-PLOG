@@ -167,7 +167,7 @@ display_board([L1|L2]):-display_line(L1),nl,display_board(L2).
 display_line([]).
 display_line([L1|L2]):-write(L1),display_line(L2).
 
-start(?):-menu(X),((X==1;X==2),chooseDificulty(Y);true),(X<4,board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(8,8),J2=player(8,8),play(L1,J1,J2,1,0,X,Y);true,!).
+start(?):-menu(X),((X==2;X==3),chooseDificulty(Y);true),(X<4,board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(8,8),J2=player(8,8),play(L1,J1,J2,1,0,X,Y);true,!).
 
 
 play(_,_,_,_,1,_,_):-retract(pawn2(_)),retract(pawn1(_)),retract(pawn3(_)),retract(pawn4(_)),start(?).
