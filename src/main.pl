@@ -64,10 +64,10 @@ board([[c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c,a,c],
 :-dynamic calcBoard/1.
 
 
-start(?):-menu(X),((X==2;X==3),chooseDificulty(Y);true),(X<4,board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(8,8),J2=player(8,8),initiateGame(?),play(L1,J1,J2,1,0,X,Y);true,!).
+start(?):-intro(?),menu(X),((X==2;X==3),chooseDificulty(Y);true),(X<4,board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(8,8),J2=player(8,8),initiateGame(?),play(L1,J1,J2,1,0,X,Y);true,!).
 
-play(_,_,_,_,1,_,_):-retract(pawn2(_)),retract(pawn1(_)),retract(pawn3(_)),retract(pawn4(_)),start(?).
-play(L1,J1,J2,Turn,0,1,_):-J1=player(V1,H1),J2=player(V2,H2),startDisplay(L1,1,1),pawn3(Pawn3),pawn4(Pawn4),
+play(Board,_,_,_,1,_,_):-startDisplay(Board,1,1),retract(pawn2(_)),retract(pawn1(_)),retract(pawn3(_)),retract(pawn4(_)),start(?).
+play(L1,J1,J2,Turn,0,1,_):-J1=player(V1,H1),J2=player(V2,H2),startDisplay(L1,1,1),pawn1(Pawn1),pawn2(Pawn2),pawn3(Pawn3),pawn4(Pawn4),
 ((Turn==1,
 	chooseStaringPiece(Turn,Pawn),
 	choosePositionToMove(Place),
@@ -91,10 +91,6 @@ play(Board,J1,J2,Turn,0,2,Dif):-J1=player(V1,H1),J2=player(V2,H2),pawn1(Pawn1),p
   	Pawn==2,availablePositions(Board,Pawn2),availableList(List),member(Place,List),retract(availableList(_)),move(Board,Pawn2,Place,NewPawn,StackBoard,r),retract(pawn2(_)),asserta(pawn2(NewPawn)),((V1>0;H1>0),placeWall(V1,H1,StackBoard,NewBoard,NewVert,NewHor);NewBoard=StackBoard,NewVert is 0,NewHor is 0)),checkWinners(End),play(NewBoard,player(NewVert,NewHor),player(V2,H2),2,End,2,Dif));
     (Turn==2,cpuTurn(1),(Dif==1,movePawnRandomly(Board,Turn,StackBoard);Dif==2,smartMovementCPU(Board,Turn,StackBoard)),(Dif==1,((V2>0;H2>0),placeRandomWall(V2,H2,StackBoard,NewBoard,NewVert,NewHor);NewBoard=StackBoard,NewVert is 0,NewHor is 0);Dif==2,((H2>0;V2>0),smartWallCPU(StackBoard,Turn,NewBoard,V2,H2,NewVert,NewHor));NewBoard=StackBoard,NewVert is 0,NewHor is 0),checkWinners(End),!,play(NewBoard,player(V1,H1),player(NewVert,NewHor),1,End,2,Dif))).
 
-
-posToMov([Xi,Yi],[Xf,Yf],Result):-Yi==Yf,Xi-Xf=:=1,Result='N';Xi-Xf=:=2,Result='NN';Yi==Yf,Xf-Xi=:=1,Result='S';Xf-Xi=:=2,Result='SS';
-Xi==Xf,Yi-Yf=:=1,Result='O';Yi-Yf=:=2,Result='OO';Xi==Xf,Yf-Yi=:=1,Result='E';Yf-Yi=:=2,Result='EE';
-Xf-Xi=:=1,Yf-Yi=:=1,Result='SE';Xi-Xf=:=1,Yf-Yi=:=1,Result='NE';Xi-Xf=:=1,Yi-Yf=:=1,Result='NO';Xf-Xi=:=1,Yi-Yf=:=1,Result='SO'.
 
 move(Board,[P1,P2],Char,L1,NewBoard,PlayerChar):-
 (Char=='NN',NewPosX is P1-2,NewX is 2*NewPosX-1,NewY is 2*P2-1,getElementFromMatrix(Board,NewX,NewY,1,1,Value),(Value\=p,Value\=j,replaceMatrix(Board,NewX,NewY,1,PlayerChar,StackBoard);StackBoard=Board),changePawn(NewPosX,P2,L1);

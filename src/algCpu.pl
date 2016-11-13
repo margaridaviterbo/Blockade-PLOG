@@ -66,6 +66,10 @@ availableWallHorizontal(Board,X,Y):-(checkColisionHorizontal(Board,[X,Y]),P1 is 
 availableWallVertical(Board,X,Y):-(checkColisionVertical(Board,[X,Y]),P1 is 2*X-1,P2 is 2*Y,replaceMatrix(Board,P1,P2,1,q,StackBoard),P3 is 2*X+1,replaceMatrix(StackBoard,P3,P2,1,q,NewBoard),checkPawnsPath(NewBoard),(\+ availableWallV(List), asserta(availableWallV([[X,Y]]));availableWallV(List),retract(availableWallV(_))
  ,append([[X,Y]],List,NewList), asserta(availableWallV(NewList)));true),(Y<11,Y1 is Y+1, X1 is X;Y1 is 1,X1 is X+1),X<14,!,garbage_collect,availableWallVertical(Board,X1,Y1);true.
 
+ posToMov([Xi,Yi],[Xf,Yf],Result):-Yi==Yf,Xi-Xf=:=1,Result='N';Xi-Xf=:=2,Result='NN';Yi==Yf,Xf-Xi=:=1,Result='S';Xf-Xi=:=2,Result='SS';
+ Xi==Xf,Yi-Yf=:=1,Result='O';Yi-Yf=:=2,Result='OO';Xi==Xf,Yf-Yi=:=1,Result='E';Yf-Yi=:=2,Result='EE';
+ Xf-Xi=:=1,Yf-Yi=:=1,Result='SE';Xi-Xf=:=1,Yf-Yi=:=1,Result='NE';Xi-Xf=:=1,Yi-Yf=:=1,Result='NO';Xf-Xi=:=1,Yi-Yf=:=1,Result='SO'.
+
  placeRandomWall(Vert,Hor,Board,NewBoard,NewVert,NewHor):-random(1,3,Choice),((Choice==1,Hor \= 0;Choice==2,Vert==0),availableWallHorizontal(Board,1,1),availableWallH(List),sizeOfList(List,Size),RealSize is Size+1,random(1,RealSize,RandomPos),positionInList(RandomPos,List,1,[X,Y]),
  P1 is 2*X,replaceMatrix(Board,P1,Y,1,w,StackBoard),P2 is Y+1,replaceMatrix(StackBoard,P1,P2,1,w,NewBoard),NewVert is Vert,NewHor is Hor-1,retract(availableWallH(_));
  (Choice==1,Hor == 0;Choice==2,Vert\=0),availableWallVertical(Board,1,1),availableWallV(List),sizeOfList(List,Size),RealSize is Size+1,random(1,RealSize,RandomPos),positionInList(RandomPos,List,1,[X,Y]),
