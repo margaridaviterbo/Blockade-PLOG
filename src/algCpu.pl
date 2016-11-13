@@ -1,3 +1,4 @@
+%given a Board and a position (X,Y), it determines the fastest way to reach every position of the board from the initial position, using the flood fill algorithm
 floodFill(Board,X,Y):-(XC1 is round((X+1)/2),XC2 is round((Y+1)/2), calcBoard(CalcBoard),getElementFromMatrix(CalcBoard,XC1,XC2,1,1,Value),
 X1 is X+2,checkPawnColision(X1,Y),XWall is X+1,YWall is round((Y+1)/2),X1<28,getElementFromMatrix(Board,XWall,YWall,1,1,WallH),WallH\=w,
 XC3 is round((X1+1)/2),getElementFromMatrix(CalcBoard,XC3,XC2,1,1,DestValue),(Value+1<DestValue;DestValue==(-1)),NewValue is Value+1,replaceMatrix(CalcBoard,XC3,XC2,1,NewValue,NewCalcBoard),
@@ -20,9 +21,11 @@ retract(calcBoard(_)),asserta(calcBoard(NewCalcBoard)),floodFill(Board,X,Y1),fal
 
 );true.
 
+%comparation attribute that receives 2 pawns ([P1x,P1y] and [P2x,P2y]), and determines which of the other 2 lists are closer to the pawns.
 compareAvg( [P1x,P1y],[P2x,P2y], [X1,Y1],[X2,Y2]) :-Value1 is (abs(P1x-X1)+abs(P1y-Y1)),Value2 is(abs(P1x-X2)+abs(P1y-Y2)), Value3 is(abs(P2x-X1)+abs(P2y-Y1)),Value4 is (abs(P2x-X2)+abs(P2y-Y2)),
 min(Value1,Value3)<min(Value2,Value4).
 
+%given a Board, the turn and the number os horizontal and vertical walls to be placed, it places a wall next to one of the opponents pawns, updating the NewBoard and NewVert and NewHor with the number of walls left after placement
 smartWallCPU(Board,Turn,NewBoard,Vert,Hor,NewVert,NewHor):-(Turn==2,pawn1(Pawn1),pawn2(Pawn2);Turn==1,pawn3(Pawn1),pawn4(Pawn2)),
 random(1,3,RandomWall),((RandomWall==1;Vert==0),availableWallHorizontal(Board,1,1),availableWallH(List),samsort(compareAvg(Pawn1,Pawn2),List,OrderedList),positionInList(1,OrderedList,1,[X,Y]),
 P1 is 2*X,replaceMatrix(Board,P1,Y,1,w,StackBoard),P2 is Y+1,replaceMatrix(StackBoard,P1,P2,1,w,NewBoard),NewVert is Vert,NewHor is Hor-1,retract(availableWallH(_));
@@ -30,6 +33,7 @@ P1 is 2*X,replaceMatrix(Board,P1,Y,1,w,StackBoard),P2 is Y+1,replaceMatrix(Stack
 P1 is 2*X-1,P2 is 2*Y,replaceMatrix(Board,P1,P2,1,q,StackBoard),P3 is 2*(X+1)-1,replaceMatrix(StackBoard,P3,P2,1,q,NewBoard),NewVert is Vert-1,NewHor is Hor,retract(availableWallV(_))).
 
 
+%receives a Board and a turn, and it moves the closest pawn to the opponent's base through the closest path updating it to NewBoard
 smartMovementCPU(Board,Turn,NewBoard):-(Turn==1,pawn1([Pawn1V,Pawn1H]),pawn2([Pawn2V,Pawn2H]);Turn ==2,pawn3([Pawn1V,Pawn1H]),pawn4([Pawn2V,Pawn2H])),
 calcboard(CalcBoard),replaceMatrix(CalcBoard,Pawn1V,Pawn1H,1,0,NewCalcBoard),Pawn1Vff is 2*Pawn1V-1,Pawn1Hff is 2* Pawn1H-1,asserta(calcBoard(NewCalcBoard)),floodFill(Board,Pawn1Vff,Pawn1Hff),
 calcBoard(CalcPawn1),retract(calcBoard(_)),
@@ -55,26 +59,32 @@ PFinal=:=Value3,RealValue1\=0,Mov is Value3-2,getPath(Board,CalcPawn2,[Pos3x,Pos
 PFinal=:=Value4,RealValue2\=0,Mov is Value4-2,getPath(Board,CalcPawn2,[Pos4x,Pos4y],Value4,[FinalX,FinalY],Mov),posToMov([Pawn2V,Pawn2H],[FinalX,FinalY],Result),move(Board,[Pawn2V,Pawn2H],Result,NewPawn,NewBoard,e),retract(pawn4(_)),assert(pawn4(NewPawn)))
 ).
 
+%given the game's board (Board) and the floodfill board (Board), the final position (X,Y), calculates the path to the position of the pawn, stoping when it reaches the position the pawn will move to, returning it [Posx,Posy]
 getPath(RealBoard,Board,[X,Y],Number,[Posx,Posy],Final):-Final=<0,Posx=X,Posy=Y;(X1 is X+1,getElementFromMatrix(Board,X1,Y,1,1,Value),Value =:= Number-1,Xwall is 2*X,getElementFromMatrix(RealBoard,Xwall,Y,1,1,ValueWall),ValueWall\=w,Final1 is Final-1,(Value\=0,Final1\=0,getPath(RealBoard,Board,[X1,Y],Value,[Posx,Posy],Final1);Value\=0,Posx is X1,Posy is Y;Posx is X,Posy is Y);
 X1 is X-1,getElementFromMatrix(Board,X1,Y,1,1,Value),Value =:= Number-1,Xwall is 2*(X-1),getElementFromMatrix(RealBoard,Xwall,Y,1,1,ValueWall),ValueWall\=w,Final1 is Final-1,(Value\=0,Final1\=0,getPath(RealBoard,Board,[X1,Y],Value,[Posx,Posy],Final1);Value\=0,Posx is X1,Posy is Y;Posx is X,Posy is Y);
 Y1 is Y+1,getElementFromMatrix(Board,X,Y1,1,1,Value),Value =:= Number-1,Xwall is 2*X-1,Ywall is 2*Y,getElementFromMatrix(RealBoard,Xwall,Ywall,1,1,ValueWall),ValueWall\=q,Final1 is Final-1,(Value\=0,Final1\=0,getPath(RealBoard,Board,[X,Y1],Value,[Posx,Posy],Final1);Value\=0,Posx is X,Posy is Y1;Posx is X,Posy is Y);
 Y1 is Y-1,getElementFromMatrix(Board,X,Y1,1,1,Value),Value =:= Number-1,Xwall is 2*X-1,Ywall is 2*(Y-1),getElementFromMatrix(RealBoard,Xwall,Ywall,1,1,ValueWall),ValueWall\=q,Final1 is Final-1,(Value\=0,Final1\=0,getPath(RealBoard,Board,[X,Y1],Value,[Posx,Posy],Final1);Value\=0,Posx is X,Posy is Y1;Posx is X,Posy is Y)).
 
+%given a Board and a position (X,Y) if it can place an horizontal wall in that position
 availableWallHorizontal(Board,X,Y):-(checkColisionHorizontal(Board,[X,Y]),P1 is 2*X,replaceMatrix(Board,P1,Y,1,w,StackBoard),P2 is Y+1,replaceMatrix(StackBoard,P1,P2,1,w,NewBoard),checkPawnsPath(NewBoard), (\+ availableWallH(List), asserta(availableWallH([[X,Y]]));availableWallH(List),retract(availableWallH(_))
 ,append([[X,Y]],List,NewList), asserta(availableWallH(NewList)));true),(Y<10,Y1 is Y+1, X1 is X;Y1 is 1,X1 is X+1),X<15,!,garbage_collect,availableWallHorizontal(Board,X1,Y1);true.
 
+%given a Board and a position (X,Y) if it can place a vertical wall in that position
 availableWallVertical(Board,X,Y):-(checkColisionVertical(Board,[X,Y]),P1 is 2*X-1,P2 is 2*Y,replaceMatrix(Board,P1,P2,1,q,StackBoard),P3 is 2*X+1,replaceMatrix(StackBoard,P3,P2,1,q,NewBoard),checkPawnsPath(NewBoard),(\+ availableWallV(List), asserta(availableWallV([[X,Y]]));availableWallV(List),retract(availableWallV(_))
  ,append([[X,Y]],List,NewList), asserta(availableWallV(NewList)));true),(Y<11,Y1 is Y+1, X1 is X;Y1 is 1,X1 is X+1),X<14,!,garbage_collect,availableWallVertical(Board,X1,Y1);true.
 
+%given the intial position [Xi,Yi] and the final position [Xf,Yf], it determines which is the movement that needs to be made (Result)
  posToMov([Xi,Yi],[Xf,Yf],Result):-Yi==Yf,Xi-Xf=:=1,Result='N';Xi-Xf=:=2,Result='NN';Yi==Yf,Xf-Xi=:=1,Result='S';Xf-Xi=:=2,Result='SS';
  Xi==Xf,Yi-Yf=:=1,Result='O';Yi-Yf=:=2,Result='OO';Xi==Xf,Yf-Yi=:=1,Result='E';Yf-Yi=:=2,Result='EE';
  Xf-Xi=:=1,Yf-Yi=:=1,Result='SE';Xi-Xf=:=1,Yf-Yi=:=1,Result='NE';Xi-Xf=:=1,Yi-Yf=:=1,Result='NO';Xf-Xi=:=1,Yi-Yf=:=1,Result='SO'.
 
+%receives a Board and the number of walls left to be placed, and places a wall randomly given all the lists of available positions, updating it to NewNoard, and updates the walls left to be places after this placement (NewVert,NewHor)
  placeRandomWall(Vert,Hor,Board,NewBoard,NewVert,NewHor):-random(1,3,Choice),((Choice==1,Hor \= 0;Choice==2,Vert==0),availableWallHorizontal(Board,1,1),availableWallH(List),sizeOfList(List,Size),RealSize is Size+1,random(1,RealSize,RandomPos),positionInList(RandomPos,List,1,[X,Y]),
  P1 is 2*X,replaceMatrix(Board,P1,Y,1,w,StackBoard),P2 is Y+1,replaceMatrix(StackBoard,P1,P2,1,w,NewBoard),NewVert is Vert,NewHor is Hor-1,retract(availableWallH(_));
  (Choice==1,Hor == 0;Choice==2,Vert\=0),availableWallVertical(Board,1,1),availableWallV(List),sizeOfList(List,Size),RealSize is Size+1,random(1,RealSize,RandomPos),positionInList(RandomPos,List,1,[X,Y]),
  P1 is 2*X-1,P2 is 2*Y,replaceMatrix(Board,P1,P2,1,q,StackBoard),P3 is 2*X+1,replaceMatrix(StackBoard,P3,P2,1,q,NewBoard),NewVert is Vert-1,NewHor is Hor,retract(availableWallV(_))).
 
+%receives the Board and the Turn and updates The NewBoard with a random movement given a list of movements available to a random pawn
  movePawnRandomly(Board,Turn,NewBoard):-pawn1(Pawn1),pawn2(Pawn2),pawn3(Pawn3),pawn4(Pawn4),random(1,3,RandomPawn),
  (RandomPawn==1, (Turn==1,availablePositions(Board,Pawn1);Turn==2,availablePositions(Board,Pawn3));
  RandomPawn==2,(Turn==1,availablePositions(Board,Pawn2);Turn==2,availablePositions(Board,Pawn4))),
@@ -82,7 +92,9 @@ availableWallVertical(Board,X,Y):-(checkColisionVertical(Board,[X,Y]),P1 is 2*X-
  (RandomPawn==1,(Turn==1,move(Board,Pawn1,Choice,NewPawn,NewBoard,r),retract(pawn1(_)),asserta(pawn1(NewPawn));Turn==2,move(Board,Pawn3,Choice,NewPawn,NewBoard,e),retract(pawn3(_)),asserta(pawn3(NewPawn)));
  RandomPawn==2,(Turn==1,move(Board,Pawn2,Choice,NewPawn,NewBoard,r),retract(pawn2(_)),asserta(pawn2(NewPawn));Turn==2,move(Board,Pawn4,Choice,NewPawn,NewBoard,e),retract(pawn4(_)),asserta(pawn4(NewPawn)))).
 
+%returns the size of a list in Size
  sizeOfList([],0).
  sizeOfList([_|L2],Size):-sizeOfList(L2,Size1),Size is Size1+1.
 
+%returns the element of a List (L1|L2) of a given Pos in Result
  positionInList(Pos,[L1|L2],Iterador,Result):-Iterador==Pos,Result =L1;Iterador1 is Iterador+1,positionInList(Pos,L2,Iterador1,Result).
