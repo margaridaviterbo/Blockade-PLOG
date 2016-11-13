@@ -1,31 +1,45 @@
 :- use_module(library(random)).
 :- use_module(library(samsort)).
 menu(X):-
-write('Choose type of game you wish to play:'), nl,
- write('1- 1 v 1'), nl,
-			write('2- 1 vs CPU'), nl,
-			write('3- CPU vs CPU'), nl,
-      write('4- Exit'), nl, prcss_ans(1,4,X);
-			write('You must choose an answer between 1 and 3, then insert "." and press ENTER!').
+repeat,
+write('---------------------------------------------------'),nl,
+write('|Choose type of game you wish to play:            |'), nl,
+write('|1- 1 v 1                                         |'), nl,
+write('|2- 1 vs CPU                                      |'), nl,
+write('|3- CPU vs CPU                                    |'), nl,
+write('|4- Exit                                          |'), nl,
+write('---------------------------------------------------'),nl, prcss_ans(1,4,X).
 
-chooseDificulty(X):-write('Choose dificulty of cpu:'), nl,
-write('1- Random'), nl,
-write('2- Indeed very hard'), nl, prcss_ans(1,2,X);
-	write('You must choose an answer between 1 and 2, then insert "." and press ENTER!').
+chooseDificulty(X):-
+repeat,
+write('---------------------------------------------------'),nl,
+write('|Choose dificult of cpu:                           |'), nl,
+write('|1- Random                                         |'), nl,
+write('|2- Indeed very hard                               |'), nl,
+write('---------------------------------------------------'),nl, prcss_ans(1,2,X).
 
 prcss_ans(Min,Max,Ans):-read(Ans),integer(Ans),Ans=<Max, Ans>=Min,nl.
 prcss_str(Ans):-read(Str), atom_codes(Ans,Str), (Str==[79,79];Str==[79];Str==[69];Str==[69,69];Str==[83,83];Str==[83];Str==[78,78];Str==[78];Str==[78,69];Str==[78,79];Str==[83,69];Str==[83,79]).
 
-chooseWall(Vert, Hor, Choice,[X,Y]):-write('Choose type of wall you want to place:'),nl,
-write('1- Vertical ('),write(Vert),write(')'),nl,
-write('2- Horizontal ('),write(Hor),write(')'),nl,
-prcss_ans(1,2,Choice),chooseWallPosition(X,Y);
-write('You must choose an answer between 1 and 2, then insert "." and press ENTER!'),chooseWall(Vert, Hor, Choice,[X,Y]).
+chooseWall(Vert, Hor, Choice,[X,Y]):-
+repeat,
+write('---------------------------------------------------'),nl,
+write('|Choose type of wall you want to place:           |'),nl,
+write('|1- Vertical ('),write(Vert),write(')                                  |'),nl,
+write('|2- Horizontal ('),write(Hor),write(')                                |'),nl,
+write('---------------------------------------------------'),nl,
+prcss_ans(1,2,Choice),chooseWallPosition(X,Y).
 
 chooseWallPosition(X,Y):-chooseWallLine(X),chooseWallColumn(Y).
 
-chooseWallLine(X):-write('Choose line to place wall (1-14): '),prcss_ans(1,14,X);write('You must choose an answer between 1 and 14, then insert "." and press ENTER!'),nl,chooseWallLine(X).
-chooseWallColumn(Y):-write('Choose column to place wall (1-11): '),prcss_ans(1,11,Y);write('You must choose an answer between 1 and 11, then insert "." and press ENTER!'),nl,chooseWallColumn(Y).
+chooseWallLine(X):-
+write('---------------------------------------------------'),nl,
+write('|Choose line to place wall (1-14):                |'),nl,
+write('---------------------------------------------------'),nl,prcss_ans(1,14,X).
+chooseWallColumn(Y):-
+write('---------------------------------------------------'),nl,
+write('Choose column to place wall (1-11):               |'),nl,
+write('---------------------------------------------------'),nl,prcss_ans(1,11,Y).
 
 placeWall(Vert,Hor,Board,NewBoard,NewVert,NewHor):-chooseWall(Vert, Hor, Choice,[X,Y]),
 ((Choice==1,Vert>0,checkColisionVertical(Board,[X,Y]),P1 is 2*X-1,P2 is 2*Y,replaceMatrix(Board,P1,P2,1,q,StackBoard),P3 is 2*X+1,replaceMatrix(StackBoard,P3,P2,1,q,NewBoard),checkPawnsPath(NewBoard),NewVert is Vert-1,NewHor is Hor;
@@ -162,16 +176,11 @@ Y1 is Y+1,getElementFromMatrix(Board,X,Y1,1,1,Value),Value =:= Number-1,Final1 i
 Y1 is Y-1,getElementFromMatrix(Board,X,Y1,1,1,Value),Value =:= Number-1,Final1 is Final-1,(Value\=0,Final1\=0,getPath(Board,[X,Y1],Value,[Posx,Posy],Final1);Value\=0,Posx is X,Posy is Y1;Posx is X,Posy is Y)).
 
 
-display_board([]).
-display_board([L1|L2]):-display_line(L1),nl,display_board(L2).
-display_line([]).
-display_line([L1|L2]):-write(L1),display_line(L2).
-
 start(?):-menu(X),((X==2;X==3),chooseDificulty(Y);true),(X<4,board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(8,8),J2=player(8,8),play(L1,J1,J2,1,0,X,Y);true,!).
 
 
 play(_,_,_,_,1,_,_):-retract(pawn2(_)),retract(pawn1(_)),retract(pawn3(_)),retract(pawn4(_)),start(?).
-play(L1,J1,J2,Turn,0,1,_):-J1=player(V1,H1),J2=player(V2,H2),display(L1,1,1),pawn1(Pawn1),pawn2(Pawn2),pawn3(Pawn3),pawn4(Pawn4),
+play(L1,J1,J2,Turn,0,1,_):-J1=player(V1,H1),J2=player(V2,H2),startDisplay(L1,1,1),pawn1(Pawn1),pawn2(Pawn2),pawn3(Pawn3),pawn4(Pawn4),
 ((Turn==1,
 	chooseStaringPiece(Turn,Pawn),
 	choosePositionToMove(Place),
@@ -183,11 +192,11 @@ play(L1,J1,J2,Turn,0,1,_):-J1=player(V1,H1),J2=player(V2,H2),display(L1,1,1),paw
   (Pawn==1,availablePositions(L1,Pawn3),availableList(List),member(Place,List),retract(availableList(_)),move(L1,Pawn3,Place,NewPawn,StackBoard,e),retract(pawn3(_)),asserta(pawn3(NewPawn)),((V2>0;H2>0),placeWall(V2,H2,StackBoard,NewBoard,NewVert,NewHor);NewBoard=StackBoard,NewVert is 0,NewHor is 0),checkWinners(End),play(NewBoard,player(V1,H1),player(NewVert,NewHor),1,End,1,_);
 	Pawn==2,availablePositions(L1,Pawn4),availableList(List),member(Place,List),retract(availableList(_)),move(L1,Pawn4,Place,NewPawn,StackBoard,e),retract(pawn4(_)),asserta(pawn4(NewPawn)),((V2>0;H2>0),placeWall(V2,H2,StackBoard,NewBoard,NewVert,NewHor);NewBoard=StackBoard,NewVert is 0,NewHor is 0),checkWinners(End),play(NewBoard,player(V1,H1),player(NewVert,NewHor),1,End,1,_))));fail.
 
-play(Board,J1,J2,Turn,0,3,Dif):-J1=player(V1,H1),J2=player(V2,H2),display(Board,1,1),(Dif==1,movePawnRandomly(Board,Turn,StackBoard);Dif==2,smartMovementCPU(Board,Turn,StackBoard)),read(_),
+play(Board,J1,J2,Turn,0,3,Dif):-J1=player(V1,H1),J2=player(V2,H2),startDisplay(Board,1,1),(Dif==1,movePawnRandomly(Board,Turn,StackBoard);Dif==2,smartMovementCPU(Board,Turn,StackBoard)),read(_),
 (Turn==1,(Dif==1,((V1>0;H1>0),placeRandomWall(V1,H1,StackBoard,NewBoard,NewVert,NewHor);NewBoard=StackBoard,NewVert is 0,NewHor is 0);Dif==2,((V1>0;H1>0),smartWallCPU(StackBoard,Turn,NewBoard,V1,H1,NewVert,NewHor);NewBoard=StackBoard,NewVert is 0,NewHor is 0)),checkWinners(End),!,garbage_collect,play(NewBoard,player(NewVert,NewHor),J2,2,End,3,Dif) ;
 Turn==2,(Dif==1,((V1>0;H1>0),placeRandomWall(V2,H2,StackBoard,NewBoard,NewVert,NewHor);NewBoard=StackBoard,NewVert is 0,NewHor is 0);Dif==2,((V2>0;H2>0),smartWallCPU(StackBoard,Turn,NewBoard,V2,H2,NewVert,NewHor);NewBoard=StackBoard,NewVert is 0,NewHor is 0)),checkWinners(End),!,garbage_collect,play(NewBoard,J1,player(NewVert,NewHor),1,End,3,Dif)).
 
-play(Board,J1,J2,Turn,0,2,Dif):-J1=player(V1,H1),J2=player(V2,H2),display(Board,1,1),pawn1(Pawn1),pawn2(Pawn2),pawn3(Pawn3),pawn4(Pawn4),
+play(Board,J1,J2,Turn,0,2,Dif):-J1=player(V1,H1),J2=player(V2,H2),startDisplay(Board,1,1),pawn1(Pawn1),pawn2(Pawn2),pawn3(Pawn3),pawn4(Pawn4),
   ((Turn==1,
   	chooseStaringPiece(Turn,Pawn),
   	choosePositionToMove(Place),
@@ -273,21 +282,31 @@ canPassWalls(Board,[P1,P2],'SE'),NewPosX is P1+1,NewX is 2*NewPosX-1,NewPosY is 
 canPassWalls(Board,[P1,P2],'SO'),NewPosX is P1+1,NewX is 2*NewPosX-1,NewPosY is P2-1,NewY is 2*NewPosY-1,checkPawnColision(Board,NewX,NewY),(\+availableList(List),asserta(availableList(['SO']));availableList(List),\+ member('SO',List),retract(availableList(_)),append(['SO'],List,NewList),asserta(availableList(NewList))),fail;
 true.
 
-choosePositionToMove(Place):-write('In what position would you like to place the pawn? U can choose from "N","NN","NO","NE","EE","SE","S","SS","SO","O" or "OO"'),nl,
-	write('O means one position to the left, OO means two positions to the left, etc.'),nl,
-	write('REMEMBER!!! You can not go through "=", through "|", nor to a position where an enemy pawn stands.'),nl,
-	prcss_str(Place);write('You can not move to that position!!'),nl,choosePositionToMove(Place).
+choosePositionToMove(Place):-
+  repeat,
+  write('--------------------------------------------------------------------------------------------------'),nl,
+  write('|In what position would you like to place the pawn?                                              |'),nl,
+  write('|You can choose from "N","NN","NO","NE","EE","SE","S","SS","SO","O" or "OO".                     |'),nl,
+	write('|O means one position to the left, OO means two positions to the left, etc.                      |'),nl,
+	write('|REMEMBER: You can not go through "-", through "|", nor to a position where an enemy pawn stands.|'),nl,
+  write('--------------------------------------------------------------------------------------------------'),nl,
+	prcss_str(Place).
 
-chooseStaringPiece(Turn,Ans):-write('It´s player´s '),write(Turn),write(' turn.'),nl,
-	write('Which pawn would you like to move?'),
+chooseStaringPiece(Turn,Ans):-
+  repeat,
+  write('---------------------------------------------------'),nl,
+  write('|It´s player´s '),write(Turn),write(' turn.                          |'),nl,
+	write('|Which pawn would you like to move?               |'),nl,
   pawn1(P1),pawn2(P2),pawn3(P3),pawn4(P4),
-	nl,write('1- O peao que se encontra na posicao '),(Turn==1,write(P1);Turn==2,write(P3)),nl,
-	write('2- O peao que se encontra na posicao '),(Turn==1,write(P2);Turn==2,write(P4)),nl,
-	prcss_ans(1,2,Ans);
-	write('You must choose between 1 and 2!!!'),nl,chooseStaringPiece(Turn,Ans).
+	write('|1- O peao que se encontra na posicao '),(Turn==1,write(P1);Turn==2,write(P3)),write('       |'),nl,
+	write('|2- O peao que se encontra na posicao '),(Turn==1,write(P2);Turn==2,write(P4)),write('       |'),nl,
+	write('---------------------------------------------------'),nl,prcss_ans(1,2,Ans).
 
+
+startDisplay(Board,X,Y):-write('    1 2 3 4 5 6 7 8 9 1011'),nl,
+write('    ---------------------'),nl,display(Board,X,Y),write('    ---------------------'),nl.
 display([],_,_).
-display([L1|L2],X,Y):-displayy(L1,X,Y),nl,X1 is X+1,display(L2,X1,Y).
+display([L1|L2],X,Y):-(X mod 2=\=0,X2 is round((X+1)/2),write(X2),(X2>9,write('-'),write('|');write(' -'),write('|'));write('    ') ),displayy(L1,X,Y),(X mod 2=\=0,write('|');true),nl,X1 is X+1,display(L2,X1,Y).
 displayy([],_,_).
 displayy([L1|L2],X,Y):-translate(L1,X,Y,Value),write(Value),Y1 is Y+1,displayy(L2,X,Y1).
 
@@ -307,7 +326,6 @@ replaceElementFromMatrix([L1|_],X,Y,Linha,Value,L3):-Linha==X,Y1 is Y-1,replace(
 replace([_|T], 0, X, [X|T]).
 replace([H|T], I, X, [H|R]):- I > 0, I1 is I-1, replace(T, I1, X, R).
 
-%checkPath(_,X,Y,[C1,C2],[C3,C4]):-X==C1,Y==C2,true.
 checkPath(Board,X,Y,[C1,C2],[C3,C4]):-(visited(Lista),(member([C1,C2],Lista),member([C3,C4],Lista); X1 is X+2,XWall is X+1,YWall is round((Y+1)/2),X1<28,getElementFromMatrix(Board,XWall,YWall,1,1,Value),Value\=w,\+ member([X1,Y],Lista),append(Lista,[[X1,Y]],NewVisited),retract(visited(_)),asserta(visited(NewVisited)),checkPath(Board,X1,Y,[C1,C2],[C3,C4]));
 visited(Lista),(member([C1,C2],Lista),member([C3,C4],Lista);X1 is X-2,X1>0, XWall is X-1,YWall is round((Y+1)/2),getElementFromMatrix(Board,XWall,YWall,1,1,Value),Value\=w, \+ member([X1,Y],Lista),append(Lista,[[X1,Y]],NewVisited),retract(visited(_)),asserta(visited(NewVisited)),checkPath(Board,X1,Y,[C1,C2],[C3,C4]));
 visited(Lista),(member([C1,C2],Lista),member([C3,C4],Lista);Y1 is Y+2,Y1<22, YWall is Y+1,getElementFromMatrix(Board,X,YWall,1,1,Value),Value\=q, \+ member([X,Y1],Lista),append(Lista,[[X,Y1]],NewVisited),retract(visited(_)),asserta(visited(NewVisited)),checkPath(Board,X,Y1,[C1,C2],[C3,C4]));
