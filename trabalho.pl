@@ -10,7 +10,7 @@ write('|3- CPU vs CPU                                    |'), nl,
 write('|4- Exit                                          |'), nl,
 write('---------------------------------------------------'),nl, prcss_ans(1,4,X).
 
-initiateGame():-
+initiateGame(?):-
 write('---------------------------------------------------'),nl,
 write('|Player1/CPU1 pawns are represented by X.         |'),nl,
 write('---------------------------------------------------'),nl.
@@ -192,7 +192,7 @@ Y1 is Y+1,getElementFromMatrix(Board,X,Y1,1,1,Value),Value =:= Number-1,Final1 i
 Y1 is Y-1,getElementFromMatrix(Board,X,Y1,1,1,Value),Value =:= Number-1,Final1 is Final-1,(Value\=0,Final1\=0,getPath(Board,[X,Y1],Value,[Posx,Posy],Final1);Value\=0,Posx is X,Posy is Y1;Posx is X,Posy is Y)).
 
 
-start(?):-menu(X),((X==2;X==3),chooseDificulty(Y);true),(X<4,board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(8,8),J2=player(8,8),initiateGame(),play(L1,J1,J2,1,0,X,Y);true,!).
+start(?):-menu(X),((X==2;X==3),chooseDificulty(Y);true),(X<4,board(L1),asserta(pawn1([4,4])),asserta(pawn2([4,8])),asserta(pawn3([11,4])),asserta(pawn4([11,8])),J1=player(8,8),J2=player(8,8),initiateGame(?),play(L1,J1,J2,1,0,X,Y);true,!).
 
 
 play(_,_,_,_,1,_,_):-retract(pawn2(_)),retract(pawn1(_)),retract(pawn3(_)),retract(pawn4(_)),start(?).
